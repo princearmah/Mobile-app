@@ -1,0 +1,204 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(const CourseDashboardApp());
+
+class CourseDashboardApp extends StatelessWidget {
+  const CourseDashboardApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Course Dashboard',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
+      home: const DashboardHome(),
+    );
+  }
+}
+
+class DashboardHome extends StatefulWidget {
+  const DashboardHome({super.key});
+
+  @override
+  State<DashboardHome> createState() => _DashboardHomeState();
+}
+
+class _DashboardHomeState extends State<DashboardHome> with TickerProviderStateMixin {
+  int _currentIndex = 0;
+  String _selectedCategory = 'Science';
+
+  // d) Animated Action Button
+  double _buttonScale = 1.0;
+
+  final List<Map<String, dynamic>> _courses = const [
+    {'name': 'Mobile App Dev', 'instructor': 'Dr. Mensah', 'icon': Icons.phone_android},
+    {'name': 'Web Engineering', 'instructor': 'Ms. Adjei', 'icon': Icons.language},
+    {'name': 'Data Structures', 'instructor': 'Mr. Boateng', 'icon': Icons.account_tree},
+    {'name': 'Database Systems', 'instructor': 'Dr. Owusu', 'icon': Icons.storage},
+    {'name': 'Computer Networks', 'instructor': 'Mrs. Amoah', 'icon': Icons.router},
+  ];
+
+  final List<String> _categories = const ['Science', 'Arts', 'Technology'];
+
+  Future<void> _confirmLogout() async {
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm Exit'),
+        content: const Text('Are you sure you want to exit the app?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Yes')),
+        ],
+      ),
+    );
+    if (shouldExit == true) {
+      // Simulate exit action
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Logging out...')),
+      );
+    }
+  }
+
+  Widget _buildBody() {
+    if (_currentIndex == 0) {
+      // Home
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Home', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 12),
+            // d) Animated Action Button (Enroll)
+            Center(
+              child: GestureDetector(
+                onTapDown: (_) => setState(() => _buttonScale = 1.1),
+                onTapUp: (_) => setState(() => _buttonScale = 1.0),
+                onTapCancel: () => setState(() => _buttonScale = 1.0),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Enrollment started!')),
+                  );
+                },
+                child: AnimatedScale(
+                  scale: _buttonScale,
+                  duration: const Duration(milliseconds: 150),
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.school),
+                    label: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text('Enroll in a course'),
+                    ),
+                    onPressed: () {}, // handled by onTap above
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            // e) Course Selection Dropdown
+            Text('Select Course Category',
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _selectedCategory,
+              items: _categories
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (v) => setState(() => _selectedCategory = v ?? _selectedCategory),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.category_outlined),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text('Selected: $_selectedCategory',
+                style: Theme.of(context).textTheme.bodyLarge),
+            const Spacer(),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.logout),
+                label: const Text('Logout'),
+                onPressed: _confirmLogout, // c) Exit Confirmation Dialog
+              ),
+            )
+          ],
+        ),
+      );
+    } else if (_currentIndex == 1) {
+      // Courses
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Courses', style: Theme.of(context).textTheme.headlineSmall),
+          ),
+          Expanded(
+            // a) Course List View
+            child: ListView.separated(
+              itemCount: _courses.length,
+              separatorBuilder: (_, __) => const Divider(height: 0),
+              itemBuilder: (context, i) {
+                final c = _courses[i];
+                return ListTile(
+                  leading: Icon(c['icon'] as IconData),
+                  title: Text(c['name'] as String),
+                  subtitle: Text('Instructor: ${c['instructor']}'),
+                  trailing: const Icon(Icons.chevron_right),
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    } else {
+      // Profile
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Profile', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            const ListTile(
+              leading: CircleAvatar(child: Icon(Icons.person)),
+              title: Text('Young Fly'),
+              subtitle: Text('IT Student'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tabNames = ['Home', 'Courses', 'Profile'];
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Active Tab: ${tabNames[_currentIndex]}'),
+        actions: [
+          IconButton(
+            tooltip: 'Logout',
+            onPressed: _confirmLogout,
+            icon: const Icon(Icons.logout),
+          )
+        ],
+      ),
+      body: _buildBody(),
+      // b) Bottom Navigation Tabs
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.menu_book_outlined), label: 'Courses'),
+          NavigationDestination(icon: Icon(Icons.person_outline), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}
+s

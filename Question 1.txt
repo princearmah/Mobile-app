@@ -1,0 +1,267 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(const StudentInfoManagerApp());
+
+class StudentInfoManagerApp extends StatelessWidget {
+  const StudentInfoManagerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Student Info Manager',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Colors.blue, fontFamily: 'Roboto'),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.pink, // pink buttons
+            foregroundColor: Colors.white,
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      home: const StudentDashboard(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class StudentDashboard extends StatefulWidget {
+  const StudentDashboard({super.key});
+
+  @override
+  StudentDashboardState createState() => StudentDashboardState();
+}
+
+class StudentDashboardState extends State<StudentDashboard> {
+  final String name = "Bright Nyamekeh";
+  final String course = "BSc Computer Science";
+  final String university = "University of Energy And Natural Resources";
+  final String profilePicUrl =
+      "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=";
+
+  int studentCount = 0;
+
+  final _formKey = GlobalKey<FormState>();
+  String email = '';
+  String password = '';
+  String loginError = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        title: const Text('Student Info Manager', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Welcome Dashboard
+            Card(
+              color: Colors.white,
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                        fontFamily: 'Roboto',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      course,
+                      style: const TextStyle(fontSize: 20, color: Colors.blue),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      university,
+                      style: TextStyle(fontSize: 16, color: Colors.blue[700]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Profile Picture Display
+            ClipRRect(
+              borderRadius: BorderRadius.circular(60),
+              child: Image.network(
+                profilePicUrl,
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 120,
+                  height: 120,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.person, size: 60, color: Colors.blue),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Interactive Notification
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.blue[700],
+                    content: Text(
+                        "Hello, $name! Welcome to the Student Info Manager.",
+                        style: const TextStyle(color: Colors.white)),
+                  ),
+                );
+              },
+              child: const Text("Show Alert"),
+            ),
+            const SizedBox(height: 20),
+
+            // Student Counter
+            Card(
+              color: Colors.white,
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Students Enrolled",
+                      style: TextStyle(fontSize: 18, color: Colors.blue),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline, color: Colors.blue),
+                          onPressed: () {
+                            setState(() {
+                              if (studentCount > 0) studentCount--;
+                            });
+                          },
+                        ),
+                        Text(
+                          '$studentCount',
+                          style: const TextStyle(
+                              fontSize: 32, fontWeight: FontWeight.bold, color: Colors.blue),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline, color: Colors.blue),
+                          onPressed: () {
+                            setState(() {
+                              studentCount++;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Student Login Form
+            Card(
+              color: Colors.white,
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Student Login",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        decoration: const InputDecoration(labelText: "Email"),
+                        onChanged: (val) => email = val,
+                        validator: (val) {
+                          if (val == null || !val.contains('@')) {
+                            return "Enter a valid email address.";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        decoration: const InputDecoration(labelText: "Password"),
+                        obscureText: true,
+                        onChanged: (val) => password = val,
+                        validator: (val) {
+                          if (val == null || val.length < 6) {
+                            return "Password must be at least 6 characters.";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      if (loginError.isNotEmpty)
+                        Text(
+                          loginError,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            loginError = '';
+                          });
+                          if (_formKey.currentState!.validate()) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.blue[700],
+                                content: const Text("Login Successful!",
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                            );
+                          } else {
+                            setState(() {
+                              loginError = "Please fix the errors above.";
+                            });
+                          }
+                        },
+                        child: const Text("Login"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
