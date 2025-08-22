@@ -44,7 +44,7 @@ class StudentDashboard extends StatefulWidget {
 }
 
 class StudentDashboardState extends State<StudentDashboard> {
-  final String name = "Bright Nyamekeh";
+  final String name = "prince armah";
   final String course = "BSc Computer Science";
   final String university = "University of Energy And Natural Resources";
   final String profilePicUrl =
@@ -264,4 +264,5 @@ class StudentDashboardState extends State<StudentDashboard> {
       ),
     );
   }
+
 }
